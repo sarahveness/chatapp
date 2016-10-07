@@ -1,35 +1,37 @@
 const express = require('express');
 const SocketServer = require('ws').Server;
 const uuid = require('node-uuid');
-
-// const path = require('path');
-
-// Set the port to 4000
 const PORT = 3001;
 
-// Create a new express server
+const util = require('util');
+const inspect = (o, d) => console.log(util.inspect(o, {colors: true, depth: d || 1}));
+
 const server = express()
-   // Make the express server serve static assets (html, javascript, css) from the /public folder
   .use(express.static('public'))
   .listen(PORT, '0.0.0.0', 'localhost', () => console.log(`Listening on ${ PORT }`));
 
-// Create the WebSockets server
 const wss = new SocketServer({ server });
 
-  wss.broadcast = (data) => {
-    wss.clients.forEach((client) => {
-      console.log("sending to client")
-      client.send(data);
-    });
-  };
+wss.broadcast = (data) => {
+  wss.clients.forEach((client) => {
+    console.log("sending to client")
+    client.send(data);
+  });
+};
+
+function sendClientCount() {
+  wss.broadcast(JSON.stringify({
+    type: 'clientCount',
+    count: wss.clients.length
+  }));
+}
 
 wss.on('connection', (socket) => {
-  console.log('Client connected');
-
+  sendClientCount();
   socket.on('message', (message, username) => {
     const parseMessage = JSON.parse(message);
-    console.log(parseMessage);
-    console.log("User " + parseMessage.username + " said " + parseMessage.message);
+    // console.log(parseMessage);
+    // console.log("User " + parseMessage.username + " said " + parseMessage.message);
 
     var newMessage = {};
 
@@ -50,10 +52,11 @@ wss.on('connection', (socket) => {
       };
     }
 
-      wss.broadcast(JSON.stringify(newMessage));
+    wss.broadcast(JSON.stringify(newMessage));
   });
 
   socket.on('close', () => {
-  console.log('Client disconnected');
+    console.log('Client disconnected');
+    sendClientCount();
   });
 });

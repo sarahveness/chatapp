@@ -12,12 +12,7 @@ let ChatBar = React.createClass({
     }
   },
 
-  // changeUsername(event) {
-
-  // },
-
   handleNameChange(event) {
-    // this.setState({currentUser: event.target.value});
     this.setState({username: event.target.value});
   },
 

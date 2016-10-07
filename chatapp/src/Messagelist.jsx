@@ -1,13 +1,17 @@
 import React from 'react';
 import Message from './Message.jsx';
 import MessageSystem from './MessageSystem.jsx';
+import OnlineUsers from './OnlineUsers.jsx';
 
 
 const MessageList = React.createClass({
   render: function() {
-    // console.log(this.props.messages)
     return (
-      <div>
+      <div className="wrapper">
+        <nav>
+        <h1>Chatty</h1>
+        <OnlineUsers clientCount={this.props.clientCount} />
+        </nav>
         <div id="message-list">
           {this.props.messages.map((message) => {
             if (message.username === undefined) {

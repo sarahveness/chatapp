@@ -24,12 +24,28 @@ const App = React.createClass({
       // let newMessages = this.state.messages;
       // newMessages.push(JSON.parse(message.data));
       // this.setState({messages: newMessages});
-      const oldMessages = this.state.messages;
       const message = JSON.parse(data);
-      console.log(message);
-      this.setState({
-        messages: [...oldMessages, message] // ES6 Spread Notation
-      })
+      if(message.type)
+      {
+        switch(message.type)
+        {
+          case 'clientCount':
+            const { count } = message;
+            this.setState({
+              clientCount: count
+            })
+            break;
+          case 'incomingNotification':
+          case 'incomingMessage':
+            const oldMessages = this.state.messages;
+            this.setState({
+              messages: [...oldMessages, message] // ES6 Spread Notation
+            })
+            break;
+          default:
+            console.error("Unknown message type", message);
+        }
+      }
     },
 
     this.wss.onopen = () => {
@@ -50,6 +66,7 @@ const App = React.createClass({
       <div>
         <MessageList
           messages={this.state.messages}
+          clientCount={this.state.clientCount}
         />
         <ChatBar
           sendMessage={this.addMessage}
@@ -82,15 +99,6 @@ const App = React.createClass({
     this.wss.send(JSON.stringify(msg));
   },
 
-  // changeUser(username) {
-  //   let currentUser = {
-  //     type: "postNotification",
-  //     currentUser: ""
-  //   };
-
-  //   this.wss.send(JSON.stringify(currentUser));
-
-  // },
 
   onNameChanged(name) {
     this.setState({
